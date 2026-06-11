@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GameFG v2</title>
+
+<style>
+
+body{
+margin:0;
+font-family:tahoma;
+background:linear-gradient(135deg,#0a0015,#1a0033,#000);
+color:white;
+overflow:hidden;
+}
+
+#menu{
+position:fixed;
+inset:0;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+background:radial-gradient(circle,#4b0082,#0a0015);
+gap:10px;
+}
+
+.logo{
+font-size:45px;
+color:#d28cff;
+}
+
+button{
+padding:10px 20px;
+border:none;
+border-radius:10px;
+background:#a855f7;
+color:white;
+cursor:pointer;
+}
+
+input{
+padding:10px;
+border:none;
+border-radius:10px;
+}
+
+.screen{
+display:none;
+}
+
+.active{
+display:block;
+}
+
+#top{
+display:flex;
+justify-content:space-between;
+padding:10px;
+background:rgba(0,0,0,.4);
+}
+
+#game{
+height:250px;
+position:relative;
+overflow:hidden;
+border-bottom:3px solid #a855f7;
+}
+
+#dino{
+position:absolute;
+left:50px;
+bottom:0;
+font-size:40px;
+}
+
+#block{
+position:absolute;
+right:-50px;
+bottom:0;
+font-size:30px;
+animation:move 2s infinite linear;
+}
+
+@keyframes move{
+0%{right:-50px;}
+100%{right:110%;}
+}
+
+.jump{
+animation:jump .7s;
+}
+
+@keyframes jump{
+0%{bottom:0;}
+50%{bottom:150px;}
+100%{bottom:0;}
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="menu">
+
+<div class="logo">🎮 GameFG</div>
+
+<input id="username" placeholder="نام کاربری">
+
+<button onclick="register()">ثبت نام</button>
+
+<button onclick="openShop()">🛒 فروشگاه</button>
+
+<button onclick="openAdmin()">👑 ادمین</button>
+
+<button onclick="startGame()">🦖 شروع بازی</button>
+
+</div>
+
+<div id="gameScreen" class="screen">
+
+<div id="top">
+<div>👤 <span id="userText"></span></div>
+<div>💰 <span id="coins">0</span></div>
+<div>🏆 <span id="record">0</span></div>
+</div>
+
+<div id="game">
+
+<div id="dino">🦖</div>
+
+<div id="block">🟥</div>
+
+</div>
+
+</div>
+
+<div id="shopScreen" class="screen">
+
+<h1>🛒 فروشگاه</h1>
+
+<button onclick="buyCactus()">🌵 کاکتوس - 50</button>
+
+<button onclick="buyGirl()">👩 اسکین دختر - 750</button>
+
+<br><br>
+
+<button onclick="back()">برگشت</button>
+
+</div>
+
+<div id="adminScreen" class="screen">
+
+<h1>👑 پنل ادمین</h1>
+
+<input id="adminPass" placeholder="رمز">
+
+<button onclick="loginAdmin()">ورود</button>
+
+<br><br>
+
+<button onclick="back()">برگشت</button>
+
+</div>
+
+<script>
+
+let coins=parseInt(localStorage.getItem("coins"))||0;
+let record=parseInt(localStorage.getItem("record"))||0;
+
+document.getElementById("coins").innerText=coins;
+document.getElementById("record").innerText=record;
+
+function register(){
+
+let name=document.getElementById("username").value;
+
+if(name==""){
+alert("نام کاربری وارد کن");
+return;
+}
+
+localStorage.setItem("user",name);
+
+document.getElementById("userText").innerText=name;
+
+alert("ثبت نام شد");
+
+}
+
+function show(id){
+
+document.getElementById("menu").style.display="none";
+
+document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
+
+document.getElementById(id).classList.add("active");
+
+}
+
+function startGame(){
+
+if(!localStorage.getItem("user")){
+alert("اول ثبت نام کن");
+return;
+}
+
+document.getElementById("userText").innerText=
+localStorage.getItem("user");
+
+show("gameScreen");
+
+game();
+
+}
+
+function openShop(){
+show("shopScreen");
+}
+
+function openAdmin(){
+show("adminScreen");
+}
+
+function back(){
+location.reload();
+}
+
+function loginAdmin(){
+
+let pass=document.getElementById("adminPass").value;
+
+if(pass==="AMIRRTXFG"){
+
+coins+=9999;
+
+localStorage.setItem("coins",coins);
+
+alert("👑 ادمین فعال شد");
+
+location.reload();
+
+}else{
+
+alert("❌ رمز اشتباه");
+
+}
+
+}
+
+function buyCactus(){
+
+if(coins>=50){
+
+coins-=50;
+
+localStorage.setItem("coins",coins);
+
+localStorage.setItem("cactus","true");
+
+alert("🌵 خرید شد");
+
+}else{
+
+alert("سکه کافی نیست");
+
+}
+
+}
+
+function buyGirl(){
+
+if(coins>=750){
+
+coins-=750;
+
+localStorage.setItem("coins",coins);
+
+localStorage.setItem("girl","true");
+
+alert("👩 خرید شد");
+
+}else{
+
+alert("سکه کافی نیست");
+
+}
+
+}
+
+function game(){
+
+let dino=document.getElementById("dino");
+
+let block=document.getElementById("block");
+
+if(localStorage.getItem("girl")=="true"){
+dino.innerText="👩";
+}
+
+if(localStorage.getItem("cactus")=="true"){
+block.innerText="🌵";
+}
+
+document.addEventListener("keydown",jump);
+
+document.addEventListener("touchstart",jump);
+
+function jump(){
+
+if(!dino.classList.contains("jump")){
+
+dino.classList.add("jump");
+
+setTimeout(()=>{
+
+dino.classList.remove("jump");
+
+},700);
+
+}
+
+}
+
+let score=0;
+
+setInterval(()=>{
+
+score++;
+
+coins++;
+
+document.getElementById("coins").innerText=coins;
+
+localStorage.setItem("coins",coins);
+
+if(score>record){
+
+record=score;
+
+localStorage.setItem("record",record);
+
+document.getElementById("record").innerText=record;
+
+}
+
+},2000);
+
+}
+
+</script>
+
+</body>
+</html>
